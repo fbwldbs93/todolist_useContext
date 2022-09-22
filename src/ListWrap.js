@@ -3,10 +3,8 @@ import { ThemeContext } from "./context/ThemeContext";
 import List from "./List";
 import ListDel from "./ListDel";
 
-function ListWrap({ list, onDone, onDelete, done, local }) {
+function ListWrap({ list, onDone, onDelete, done }) {
   const { isDark } = useContext(ThemeContext);
-  //   console.log(isDark);
-  console.log("localsss", local);
 
   return (
     <ul

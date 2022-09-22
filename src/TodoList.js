@@ -7,24 +7,32 @@ import { ThemeContext } from "./context/ThemeContext";
 
 function TodoList() {
   const [input, setInput] = useState("");
-  const [list, setList] = useState([]);
-  const [doneSwitch, setDoneSwitch] = useState(false);
+  const [list, setList] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = window.localStorage.getItem("todolist");
+      if (saved) {
+        return JSON.parse(saved);
+      } else {
+        return [""];
+      }
+    }
+  });
   const [done, setDone] = useState([]);
   const [isDark, setIsDark] = useState(false);
-  const [local, setLocal] = useState([]);
 
   const todolist = "todolist";
 
   useEffect(() => {
+    localStorage.setItem(todolist, JSON.stringify(list));
+  }, [list]);
+
+  useEffect(() => {
     const localData = localStorage.getItem(todolist);
+    const data = JSON.parse(localData);
     if (localData !== null) {
-      const data = JSON.parse(localData);
       setList(data);
-      //   console.log("localData", localData);
     }
   }, []);
-  //localstorage
-  console.log("local", local);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -33,10 +41,10 @@ function TodoList() {
     }
     setList((currentArr) => (currentArr = [input, ...currentArr]));
     localStorage.setItem(todolist, JSON.stringify(list));
-    console.log(list);
+
+    console.log("list in submit", list);
     setInput("");
   };
-
   const onChange = (e) => {
     setInput(e.target.value);
   };
@@ -46,7 +54,6 @@ function TodoList() {
       return listIndex !== index;
       //index 가 같지 않은 걸 뺀 배열을 출력
     });
-    // console.log(removeList);
     setList(removeList);
     localStorage.setItem(todolist, JSON.stringify(list));
   };
@@ -64,21 +71,13 @@ function TodoList() {
     });
 
     setDone((currentArr) => [doneList, ...currentArr]);
-    // setDone((currentArr) => [doneList]);
-    // console.log(doneList);
   };
 
   return (
     <div className="todolist-wrap">
       <ThemeContext.Provider value={{ isDark, setIsDark }}>
         <Form onSubmit={onSubmit} input={input} onChange={onChange} />
-        <ListWrap
-          list={list}
-          local={local}
-          onDelete={onDelete}
-          onDone={onDone}
-          done={done}
-        />
+        <ListWrap list={list} onDelete={onDelete} onDone={onDone} done={done} />
         <Footer isDark={isDark} setIsDark={setIsDark} />
       </ThemeContext.Provider>
     </div>
